@@ -2,6 +2,8 @@
 #include <cstddef>
 #include <stdexcept>
 
+//Fake + LOOP
+
 template< class T >
 struct BiList
 {
@@ -9,6 +11,44 @@ struct BiList
   BiList< T >* next;
   BiList< T >* prev;
 };
+
+/*
+ЗАДАЧА № 2
+*/
+
+template< class T >
+BiList<T>* create(const T& value);
+
+template< class T >
+BiList<T>* add(BiList<T>* h, const T& value);
+
+template< class T >
+BiList<T>* insert(BiList<T>* h, const T& value);
+
+template< class T >
+BiList<T>* cut(BiList<T>* h) noexcept;
+
+template< class T >
+BiList<T>* erase(BiList<T>* h) noexcept;
+
+template < class T >
+BiList<T>* clear(BiList<T>* fake) noexcept;
+
+template<class T>
+BiList<T>* fake(BiList<T>* h);
+
+template< class T >
+BiList<T>* rmfake(BiList<T>* h);
+
+template< class T, class F >
+F traverse(F f, BiList<T>* h, BiList<T>* e);
+
+template< class T, class F >
+F traverse_back(F f, BiList<T>* h, BiList<T>* e);
+
+/*
+ЗАДАЧА № 3
+*/
 
 template< class T >
 BiList< T >* create(const T& value)
@@ -83,6 +123,34 @@ BiList< T >* rmfake(BiList< T >* h)
   return first;
 }
 
+template< class T, class F >
+F traverse(F f, BiList< T >* h, BiList< T >* e)
+{
+  BiList< T >* curr = h;
+  while (curr != e)
+  {
+    f(curr->val);
+    curr = curr->next;
+  }
+  return f;
+}
+
+template< class T, class F >
+F traverse_back(F f, BiList< T >* h, BiList< T >* e)
+{
+  BiList< T >* curr = h;
+  while (curr != e)
+  {
+    f(curr->val);
+    curr = curr->prev;
+  }
+  return f;
+}
+
+/*
+ЗАДАЧА № 4
+*/
+
 template< class T >
 BiList< T >* convert(const T* a, size_t size)
 {
@@ -116,29 +184,9 @@ BiList< T >* convert(const T* a, size_t size)
   return fake(head);
 }
 
-template< class T, class F >
-F traverse(F f, BiList< T >* h, BiList< T >* e)
-{
-  BiList< T >* curr = h;
-  while (curr != e)
-  {
-    f(curr->val);
-    curr = curr->next;
-  }
-  return f;
-}
-
-template< class T, class F >
-F traverse_back(F f, BiList< T >* h, BiList< T >* e)
-{
-  BiList< T >* curr = h;
-  while (curr != e)
-  {
-    f(curr->val);
-    curr = curr->prev;
-  }
-  return f;
-}
+/*
+Демонстрационная программа
+*/
 
 int main()
 {
@@ -189,7 +237,7 @@ int main()
   }
   catch (const std::exception& e)
   {
-    std::cerr << "Error: " << e.what() << std::endl;
+    std::cerr << "Error: " << e.what() << '\n';
   }
   catch (...)
   {
@@ -199,3 +247,11 @@ int main()
   delete[] arr;
   return 0;
 }
+
+/*
+ЗАДАЧА № 1
+НЕЯВНЫЙ ИНТЕРФЕЙС ДЛЯ T:
+-Конструктор копирования
+-Оператор присваивания
+-Деструктор
+*/
