@@ -17,34 +17,34 @@ struct BiList
 */
 
 template< class T >
-BiList<T>* create(const T& value);
+BiList< T >* create(const T& value);
 
 template< class T >
-BiList<T>* add(BiList<T>* h, const T& value);
+BiList< T >* add(BiList< T >* h, const T& value);
 
 template< class T >
-BiList<T>* insert(BiList<T>* h, const T& value);
+BiList< T >* insert(BiList< T >* h, const T& value);
 
 template< class T >
-BiList<T>* cut(BiList<T>* h) noexcept;
+BiList< T >* cut(BiList< T >* h) noexcept;
 
 template< class T >
-BiList<T>* erase(BiList<T>* h) noexcept;
+BiList< T >* erase(BiList< T >* h) noexcept;
 
 template < class T >
-BiList<T>* clear(BiList<T>* fake) noexcept;
+BiList< T >* clear(BiList< T >* h, BiList< T >* e) noexcept;
 
 template<class T>
-BiList<T>* fake(BiList<T>* h);
+BiList< T >* fake(BiList< T >* h);
 
 template< class T >
-BiList<T>* rmfake(BiList<T>* h);
+BiList< T >* rmfake(BiList< T >* h);
 
 template< class T, class F >
-F traverse(F f, BiList<T>* h, BiList<T>* e);
+F traverse(F f, BiList< T >* h, BiList< T >* e);
 
 template< class T, class F >
-F traverse_back(F f, BiList<T>* h, BiList<T>* e);
+F traverse_back(F f, BiList< T >* h, BiList< T >* e);
 
 /*
 ЗАДАЧА № 3
@@ -93,43 +93,46 @@ BiList< T >* erase(BiList< T >* h) noexcept
 template < class T >
 BiList< T >* clear(BiList< T >* fake) noexcept
 {
-  while (fake->next != fake)
+  BiList< T >* current = fake->next;
+  while (current != fake)
   {
-    erase(fake);
+    BiList< T >* next = current->next;
+    delete current;
+    current = next;
   }
+
+  fake->next = fake;
   return fake;
 }
 
-template<class T>
+template< class T >
 BiList< T >* fake(BiList< T >* h)
 {
-  BiList< T >* last = h->prev;
-  BiList< T >* f = static_cast< BiList< T >* >(::operator new(sizeof(BiList< T >)));
+  BiList< T >* f = static_cast< BiList< T >* >(::operator new (sizeof(BiList< T >*)));
+  f->prev = nullptr;
   f->next = h;
-  h->prev = f;
-  last->next = f;
-  f->prev = last;
   return f;
 }
 
 template< class T >
 BiList< T >* rmfake(BiList< T >* h)
 {
-  BiList< T >* first = h->next;
-  BiList< T >* last = h->prev;
-  last->next = first;
-  first->prev = last;
+  BiList< T >* ret = h->next;
   ::operator delete(h);
-  return first;
+  return ret;
 }
 
 template< class T, class F >
 F traverse(F f, BiList< T >* h, BiList< T >* e)
 {
   BiList< T >* curr = h;
-  while (curr != e)
+  while (true)
   {
     f(curr->val);
+    if (curr == e)
+    {
+      break;
+    }
     curr = curr->next;
   }
   return f;
@@ -139,12 +142,33 @@ template< class T, class F >
 F traverse_back(F f, BiList< T >* h, BiList< T >* e)
 {
   BiList< T >* curr = h;
-  while (curr != e)
+  while (true)
   {
     f(curr->val);
+    if (curr == e)
+    {
+      break;
+    }
     curr = curr->prev;
   }
   return f;
+}
+
+template< class T >
+BiList< T >* find_last(BiList< T >* fake)
+{
+  if (fake->next == fake)
+  {
+    return fake;
+  }
+  BiList< T >* current = fake->next;
+  BiList< T >* first = current;
+  while (current->next != first)
+  {
+    current = current->next;
+  }
+
+  return current;
 }
 
 /*
@@ -175,9 +199,13 @@ BiList< T >* convert(const T* a, size_t size)
   {
     if (head)
     {
-      BiList< T >* tempFake = fake(head);
-      clear(tempFake);
-      delete tempFake;
+      BiList< T >* current = head;
+      do
+      {
+        BiList< T >* next = current->next;
+        delete current;
+        current = next;
+      } while (current != head);
     }
     throw;
   }
@@ -200,37 +228,46 @@ int main()
 
     auto print = [](int x) { std::cout << x << " "; };
 
+    BiList< int >* last = find_last(list);
+
     std::cout << "Прямой порядок: ";
-    traverse(print, list->next, list);
+    traverse(print, list->next, last);
     std::cout << '\n';
 
     std::cout << "Вставка 99 после второго элемента:" << '\n';
     insert(list->next->next, 99);
 
+    last = find_last(list);
+
     std::cout << "После вставки: ";
-    traverse(print, list->next, list);
+    traverse(print, list->next, last);
     std::cout << '\n';
 
     std::cout << "Обратный порядок: ";
-    traverse_back(print, list->prev, list);
+    traverse_back(print, last, list->next);
     std::cout << '\n';
 
     std::cout << "Вставка 99 перед вторым элементом:" << '\n';
     add(list->next->next, 99);
 
+    last = find_last(list);
+
     std::cout << "После вставки: ";
-    traverse(print, list->next, list);
+    traverse(print, list->next, last);
     std::cout << '\n';
 
     std::cout << "Удаление третьего элемента:" << '\n';
     erase(list->next->next);
 
+    last = find_last(list);
+
     std::cout << "После удаления: ";
-    traverse(print, list->next, list);
+    traverse(print, list->next, last);
     std::cout << '\n';
 
-    clear(list);
-    delete list;
+    BiList< int >* head = rmfake(list);
+    clear(head);
+    delete head;
     list = nullptr;
 
     std::cout << "Список очищен." << '\n';
