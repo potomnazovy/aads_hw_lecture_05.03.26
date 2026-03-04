@@ -32,7 +32,7 @@ template< class T >
 BiList< T >* erase(BiList< T >* h) noexcept;
 
 template < class T >
-BiList< T >* clear(BiList< T >* h, BiList< T >* e) noexcept;
+BiList< T >* clear(BiList< T >* h) noexcept;
 
 template<class T>
 BiList< T >* fake(BiList< T >* h);
@@ -91,18 +91,18 @@ BiList< T >* erase(BiList< T >* h) noexcept
 }
 
 template < class T >
-BiList< T >* clear(BiList< T >* fake) noexcept
+BiList< T >* clear(BiList< T >* h) noexcept
 {
-  BiList< T >* current = fake->next;
-  while (current != fake)
+  BiList< T >* current = h->next;
+  while (current != h)
   {
     BiList< T >* next = current->next;
     delete current;
     current = next;
   }
 
-  fake->next = fake;
-  return fake;
+  h->next = h;
+  return h;
 }
 
 template< class T >
@@ -155,13 +155,13 @@ F traverse_back(F f, BiList< T >* h, BiList< T >* e)
 }
 
 template< class T >
-BiList< T >* find_last(BiList< T >* fake)
+BiList< T >* find_last(BiList< T >* h)
 {
-  if (fake->next == fake)
+  if (h->next == h)
   {
-    return fake;
+    return h;
   }
-  BiList< T >* current = fake->next;
+  BiList< T >* current = h->next;
   BiList< T >* first = current;
   while (current->next != first)
   {
